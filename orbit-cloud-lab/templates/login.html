@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orbit Cloud — Connexion</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #eef4ff 0%, #f6f9ff 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0b1a33;
+  }
+  .container {
+    background: #fff;
+    width: 100%;
+    max-width: 400px;
+    padding: 40px 36px;
+    border-radius: 14px;
+    box-shadow: 0 12px 44px rgba(20, 40, 90, .10);
+  }
+  .logo {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0284c7;
+    margin-bottom: 6px;
+    letter-spacing: -.02em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo::before {
+    content: '';
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #38bdf8, #0284c7);
+  }
+  h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+  .sub { font-size: 14px; color: #64748b; margin-bottom: 28px; }
+  .field { margin-bottom: 16px; }
+  label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: #334155; }
+  input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color .15s, box-shadow .15s;
+    outline: none;
+  }
+  input:focus {
+    border-color: #0284c7;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, .13);
+  }
+  button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    background: #0284c7;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .15s;
+  }
+  button:hover { background: #0369a1; }
+  button:disabled { background: #7dd3fc; cursor: not-allowed; }
+  .error {
+    background: #fef2f2;
+    color: #b91c1c;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-top: 16px;
+    display: none;
+  }
+  .error.show { display: block; }
+  .hint {
+    text-align: center;
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 24px;
+  }
+  .hint code {
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11.5px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="logo">Orbit Cloud</div>
+    <h1>Connexion</h1>
+    <p class="sub">Accédez à votre espace</p>
+
+    <form id="loginForm">
+      <div class="field">
+        <label for="username">Nom d'utilisateur</label>
+        <input type="text" id="username" name="username" required autocomplete="username">
+      </div>
+      <div class="field">
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" name="password" required autocomplete="current-password">
+      </div>
+      <button type="submit" id="submitBtn">Se connecter</button>
+      <div class="error" id="error"></div>
+    </form>
+
+    <div class="hint">
+      Comptes de test : <code>alice / alice123</code> &nbsp;·&nbsp; <code>bob / bob123</code>
+    </div>
+  </div>
+
+<script>
+  const form = document.getElementById('loginForm');
+  const errorBox = document.getElementById('error');
+  const submitBtn = document.getElementById('submitBtn');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorBox.classList.remove('show');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Connexion...';
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    try {
+      const r = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const d = await r.json();
+      if (d.ok) {
+        window.location.href = d.redirect;
+      } else {
+        errorBox.textContent = d.error || 'Erreur';
+        errorBox.classList.add('show');
+      }
+    } catch (err) {
+      errorBox.textContent = 'Erreur réseau';
+      errorBox.classList.add('show');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Se connecter';
+    }
+  });
+</script>
+</body>
+</html>

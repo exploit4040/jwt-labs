@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vertex Analytics — Connexion</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0a0e1a;
+    color: #e5e7eb;
+    overflow: hidden;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .brand-panel { display: none; }
+  }
+
+  /* ─── LEFT : Branding ─── */
+  .brand-panel {
+    position: relative;
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+  }
+  .brand-panel::before,
+  .brand-panel::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: .5;
+    pointer-events: none;
+  }
+  .brand-panel::before {
+    width: 400px; height: 400px;
+    background: #6366f1;
+    top: -100px; right: -100px;
+    animation: float 12s ease-in-out infinite;
+  }
+  .brand-panel::after {
+    width: 350px; height: 350px;
+    background: #10b981;
+    bottom: -100px; left: -80px;
+    animation: float 15s ease-in-out infinite reverse;
+  }
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(30px, -30px); }
+  }
+
+  .brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -.02em;
+    position: relative;
+    z-index: 2;
+  }
+  .logo-mark {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    display: grid;
+    place-items: center;
+    box-shadow: 0 8px 24px rgba(99, 102, 241, .4);
+  }
+  .logo-mark svg { width: 20px; height: 20px; }
+
+  .brand-content {
+    position: relative;
+    z-index: 2;
+    max-width: 440px;
+  }
+  .brand-content h1 {
+    font-size: 42px;
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: -.03em;
+    color: #fff;
+    margin-bottom: 20px;
+  }
+  .brand-content h1 span {
+    background: linear-gradient(120deg, #a5b4fc, #6ee7b7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .brand-content p {
+    font-size: 16px;
+    color: #cbd5e1;
+    line-height: 1.6;
+    margin-bottom: 36px;
+  }
+  .features {
+    list-style: none;
+    display: grid;
+    gap: 16px;
+  }
+  .features li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14.5px;
+    color: #e2e8f0;
+  }
+  .features li::before {
+    content: '';
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: rgba(16, 185, 129, .15);
+    border: 1px solid rgba(16, 185, 129, .4);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2310b981'><path d='M16.7 5.3a1 1 0 010 1.4l-7 7a1 1 0 01-1.4 0l-3-3a1 1 0 011.4-1.4L9 11.6l6.3-6.3a1 1 0 011.4 0z'/></svg>");
+    background-size: 14px;
+    background-repeat: no-repeat;
+    background-position: center;
+    flex-shrink: 0;
+  }
+
+  .brand-footer {
+    position: relative;
+    z-index: 2;
+    font-size: 13px;
+    color: #94a3b8;
+    display: flex;
+    gap: 24px;
+  }
+  .brand-footer span { display: flex; align-items: center; gap: 6px; }
+  .brand-footer span::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 10px #10b981;
+  }
+
+  /* ─── RIGHT : Form ─── */
+  .form-panel {
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 40px;
+    color: #0f172a;
+  }
+  .form-container {
+    width: 100%;
+    max-width: 380px;
+  }
+  .form-header { margin-bottom: 32px; }
+  .form-header h2 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    color: #0f172a;
+    margin-bottom: 8px;
+  }
+  .form-header p {
+    font-size: 14.5px;
+    color: #64748b;
+  }
+
+  .field { margin-bottom: 18px; }
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #334155;
+    margin-bottom: 7px;
+  }
+  .input-wrap { position: relative; }
+  input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #0f172a;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+    outline: none;
+  }
+  input:focus {
+    border-color: #6366f1;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, .12);
+  }
+
+  .row-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    font-size: 13px;
+  }
+  .check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #475569;
+    cursor: pointer;
+  }
+  .check input { width: auto; padding: 0; background: none; border: none; }
+  .row-between a {
+    color: #6366f1;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .row-between a:hover { text-decoration: underline; }
+
+  .btn-submit {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 14.5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform .1s, box-shadow .15s;
+    box-shadow: 0 8px 20px rgba(99, 102, 241, .3);
+  }
+  .btn-submit:hover {
+    box-shadow: 0 10px 28px rgba(99, 102, 241, .45);
+  }
+  .btn-submit:active { transform: translateY(1px); }
+  .btn-submit:disabled {
+    background: #c7d2fe;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  .divider {
+    text-align: center;
+    margin: 24px 0;
+    position: relative;
+    font-size: 12px;
+    color: #94a3b8;
+  }
+  .divider::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 0; right: 0;
+    height: 1px;
+    background: #e2e8f0;
+  }
+  .divider span {
+    position: relative;
+    background: #fff;
+    padding: 0 14px;
+  }
+
+  .sso-btn {
+    width: 100%;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #334155;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: border-color .15s, background .15s;
+  }
+  .sso-btn:hover { border-color: #cbd5e1; background: #f8fafc; }
+
+  .error {
+    background: #fef2f2;
+    color: #b91c1c;
+    padding: 11px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 18px;
+    border: 1px solid #fecaca;
+    display: none;
+  }
+  .error.show { display: block; }
+
+  .test-hint {
+    margin-top: 28px;
+    padding: 14px 16px;
+    background: #f8fafc;
+    border-radius: 10px;
+    font-size: 12.5px;
+    color: #64748b;
+    text-align: center;
+  }
+  .test-hint code {
+    background: #e0e7ff;
+    color: #3730a3;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- LEFT : Branding -->
+  <div class="brand-panel">
+    <div class="brand-logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      Vertex Analytics
+    </div>
+
+    <div class="brand-content">
+      <h1>L'analytique qui <span>propulse</span> votre croissance.</h1>
+      <p>Une plateforme complète pour mesurer, comprendre et piloter chaque décision de votre entreprise.</p>
+
+      <ul class="features">
+        <li>Dashboards temps réel jusqu'à 4 200 req/s</li>
+        <li>Alertes intelligentes et rapports automatisés</li>
+        <li>Sécurité de niveau entreprise · SOC 2 · RGPD</li>
+      </ul>
+    </div>
+
+    <div class="brand-footer">
+      <span>ISO 27001</span>
+      <span>SOC 2 Type II</span>
+      <span>RGPD</span>
+    </div>
+  </div>
+
+  <!-- RIGHT : Form -->
+  <div class="form-panel">
+    <div class="form-container">
+      <div class="form-header">
+        <h2>Bienvenue</h2>
+        <p>Connectez-vous à votre espace Vertex</p>
+      </div>
+
+      <form id="loginForm">
+        <div class="error" id="error"></div>
+
+        <div class="field">
+          <label for="username">Adresse e-mail</label>
+          <div class="input-wrap">
+            <input type="text" id="username" placeholder="vous@entreprise.com" required autocomplete="username">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="password">Mot de passe</label>
+          <div class="input-wrap">
+            <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
+          </div>
+        </div>
+
+        <div class="row-between">
+          <label class="check">
+            <input type="checkbox"> Se souvenir de moi
+          </label>
+          <a href="#">Mot de passe oublié ?</a>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">Se connecter</button>
+
+        <div class="divider"><span>OU</span></div>
+
+        <button type="button" class="sso-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.5 12.3c0-.8-.1-1.5-.2-2.3H12v4.3h5.9c-.3 1.4-1 2.5-2.1 3.3v2.7h3.4c2-1.8 3.3-4.5 3.3-8z"/><path fill="#34A853" d="M12 23c2.8 0 5.2-.9 6.9-2.5l-3.4-2.7c-.9.6-2.1 1-3.5 1-2.7 0-5-1.8-5.8-4.3H2.7v2.8C4.4 20.5 8 23 12 23z"/><path fill="#FBBC05" d="M6.2 14.5c-.2-.6-.3-1.2-.3-1.9s.1-1.3.3-1.9V7.9H2.7C2 9.4 1.6 11 1.6 12.6s.4 3.2 1.1 4.7l3.5-2.8z"/><path fill="#EA4335" d="M12 5.6c1.5 0 2.9.5 4 1.5l3-3C17.2 2.4 14.8 1.4 12 1.4 8 1.4 4.4 3.9 2.7 7.9l3.5 2.8c.8-2.5 3.1-5.1 5.8-5.1z"/></svg>
+          Continuer avec Google
+        </button>
+      </form>
+
+      <div class="test-hint">
+        Comptes test : <code>marc / marc123</code> · <code>admin / admin123</code>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const form = document.getElementById('loginForm');
+  const errorBox = document.getElementById('error');
+  const submitBtn = document.getElementById('submitBtn');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorBox.classList.remove('show');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Connexion...';
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    try {
+      const r = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const d = await r.json();
+      if (d.ok) {
+        window.location.href = d.redirect;
+      } else {
+        errorBox.textContent = d.error || 'Erreur';
+        errorBox.classList.add('show');
+      }
+    } catch (err) {
+      errorBox.textContent = 'Erreur réseau';
+      errorBox.classList.add('show');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Se connecter';
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pulsar Labs — Sign in</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #000;
+    color: #e5e7eb;
+    overflow: hidden;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .brand-panel { display: none; }
+  }
+
+  /* ─── LEFT ─── */
+  .brand-panel {
+    position: relative;
+    background: #000;
+    padding: 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    border-right: 1px solid #1a1a1a;
+  }
+  .brand-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+  .brand-panel::after {
+    content: '';
+    position: absolute;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(52, 211, 153, .15) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    filter: blur(40px);
+    pointer-events: none;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -.01em;
+    position: relative;
+    z-index: 2;
+  }
+  .logo-mark {
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    background: #fff;
+    display: grid;
+    place-items: center;
+    color: #000;
+    font-weight: 800;
+    font-size: 13px;
+    font-family: 'SF Mono', Consolas, monospace;
+  }
+  .logo-mark::before { content: '▸'; }
+
+  .content {
+    position: relative;
+    z-index: 2;
+    max-width: 460px;
+  }
+  .content .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 11px;
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, .3);
+    background: rgba(52, 211, 153, .06);
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+    letter-spacing: .05em;
+  }
+  .content .tag::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 8px #34d399;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .4; }
+  }
+
+  .content h1 {
+    font-size: 38px;
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: -.03em;
+    color: #fff;
+    margin-bottom: 18px;
+  }
+  .content h1 em {
+    font-style: normal;
+    background: linear-gradient(120deg, #34d399, #22d3ee);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .content p {
+    font-size: 15px;
+    color: #9ca3af;
+    line-height: 1.6;
+    margin-bottom: 32px;
+  }
+
+  .stats-mini {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    padding-top: 28px;
+    border-top: 1px solid #1a1a1a;
+  }
+  .stats-mini > div {
+    font-family: 'SF Mono', Consolas, monospace;
+  }
+  .stats-mini .k {
+    font-size: 10.5px;
+    color: #4b5563;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    margin-bottom: 5px;
+  }
+  .stats-mini .v {
+    font-size: 17px;
+    color: #fff;
+    font-weight: 600;
+  }
+  .stats-mini .v em {
+    font-style: normal;
+    color: #34d399;
+    font-size: 12px;
+    margin-left: 5px;
+  }
+
+  /* ─── RIGHT ─── */
+  .form-panel {
+    background: #0a0a0a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 40px;
+  }
+  .form-box {
+    width: 100%;
+    max-width: 380px;
+  }
+  .form-box h2 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -.02em;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .form-box .sub {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 32px;
+  }
+
+  .field { margin-bottom: 16px; }
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: #9ca3af;
+    margin-bottom: 8px;
+    letter-spacing: .01em;
+  }
+  input {
+    width: 100%;
+    padding: 11px 14px;
+    background: #111;
+    border: 1px solid #1f1f1f;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'SF Mono', Consolas, monospace;
+    color: #e5e7eb;
+    transition: border-color .15s, background .15s;
+    outline: none;
+  }
+  input::placeholder { color: #4b5563; }
+  input:focus {
+    border-color: #34d399;
+    background: #0a0a0a;
+    box-shadow: 0 0 0 3px rgba(52, 211, 153, .1);
+  }
+
+  .row-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+    font-size: 12.5px;
+  }
+  .check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6b7280;
+    cursor: pointer;
+    font-family: 'SF Mono', Consolas, monospace;
+  }
+  .check input { width: auto; padding: 0; background: none; border: none; }
+  .row-between a {
+    color: #34d399;
+    text-decoration: none;
+    font-family: 'SF Mono', Consolas, monospace;
+  }
+  .row-between a:hover { text-decoration: underline; }
+
+  .btn-submit {
+    width: 100%;
+    padding: 12px;
+    background: #fff;
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity .15s;
+  }
+  .btn-submit:hover { opacity: .9; }
+  .btn-submit:disabled { opacity: .5; cursor: not-allowed; }
+
+  .error {
+    background: rgba(239, 68, 68, .1);
+    color: #f87171;
+    padding: 11px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(239, 68, 68, .25);
+    font-family: 'SF Mono', Consolas, monospace;
+    display: none;
+  }
+  .error.show { display: block; }
+
+  .hint {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid #1a1a1a;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 11.5px;
+    color: #4b5563;
+    text-align: center;
+  }
+  .hint code {
+    color: #34d399;
+    background: rgba(52, 211, 153, .08);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <div class="brand-panel">
+    <div class="logo">
+      <div class="logo-mark"></div>
+      Pulsar Labs
+    </div>
+
+    <div class="content">
+      <div class="tag">GPU CLUSTER ONLINE</div>
+      <h1>Infrastructure IA <em>à la demande</em>.</h1>
+      <p>Entraînez, déployez et scalez vos modèles sur des milliers de GPU H100. Latence minimale, disponibilité maximale.</p>
+
+      <div class="stats-mini">
+        <div>
+          <div class="k">GPU actifs</div>
+          <div class="v">1 976<em>+12%</em></div>
+        </div>
+        <div>
+          <div class="k">Jobs / jour</div>
+          <div class="v">42 850</div>
+        </div>
+        <div>
+          <div class="k">Uptime</div>
+          <div class="v">99.997<em>%</em></div>
+        </div>
+        <div>
+          <div class="k">Régions</div>
+          <div class="v">14</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="position:relative;z-index:2;font-family:'SF Mono',Consolas,monospace;font-size:11px;color:#4b5563;">
+      © 2024 Pulsar Labs · v3.2.1
+    </div>
+  </div>
+
+  <div class="form-panel">
+    <div class="form-box">
+      <h2>Sign in</h2>
+      <p class="sub">Accédez à votre cluster</p>
+
+      <form id="loginForm">
+        <div class="error" id="error"></div>
+
+        <div class="field">
+          <label for="username">USERNAME</label>
+          <input type="text" id="username" placeholder="dev" required autocomplete="username">
+        </div>
+
+        <div class="field">
+          <label for="password">PASSWORD</label>
+          <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+
+        <div class="row-between">
+          <label class="check">
+            <input type="checkbox"> remember_me
+          </label>
+          <a href="#">forgot?</a>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">Continue</button>
+      </form>
+
+      <div class="hint">
+        test accounts : <code>dev / dev123</code> · <code>admin / admin123</code>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const form = document.getElementById('loginForm');
+  const errorBox = document.getElementById('error');
+  const submitBtn = document.getElementById('submitBtn');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorBox.classList.remove('show');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Signing in...';
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    try {
+      const r = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const d = await r.json();
+      if (d.ok) {
+        window.location.href = d.redirect;
+      } else {
+        errorBox.textContent = '! ' + (d.error || 'error');
+        errorBox.classList.add('show');
+      }
+    } catch (err) {
+      errorBox.textContent = '! network error';
+      errorBox.classList.add('show');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Continue';
+    }
+  });
+</script>
+
+</body>
+</html>

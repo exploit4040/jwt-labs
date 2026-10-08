@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pulsar Labs — Console</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #000;
+    color: #e5e7eb;
+    min-height: 100vh;
+  }
+  .app {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    background: #0a0a0a;
+    border-right: 1px solid #1a1a1a;
+    padding: 18px 12px;
+    display: flex;
+    flex-direction: column;
+  }
+  .side-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #fff;
+    padding: 6px 8px 18px;
+    border-bottom: 1px solid #1a1a1a;
+    margin-bottom: 14px;
+    letter-spacing: -.01em;
+  }
+  .logo-mark {
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    background: #fff;
+    color: #000;
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 11px;
+    font-family: 'SF Mono', Consolas, monospace;
+  }
+  .logo-mark::before { content: '▸'; }
+
+  .nav-label {
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 10px;
+    color: #4b5563;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    padding: 12px 8px 6px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #9ca3af;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: 'SF Mono', Consolas, monospace;
+    transition: background .12s, color .12s;
+    margin-bottom: 2px;
+  }
+  .nav-item:hover { background: #141414; color: #fff; }
+  .nav-item.active { background: #141414; color: #fff; }
+  .nav-item.active::before {
+    content: '';
+    width: 3px; height: 14px;
+    background: #34d399;
+    border-radius: 2px;
+    margin-left: -10px;
+    margin-right: 7px;
+  }
+  .nav-item svg {
+    width: 14px; height: 14px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.8;
+    flex-shrink: 0;
+  }
+
+  .side-bottom {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid #1a1a1a;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .avatar {
+    width: 32px; height: 32px;
+    border-radius: 7px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    color: #34d399;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 12px;
+    font-family: 'SF Mono', Consolas, monospace;
+    flex-shrink: 0;
+  }
+  .user-info { flex: 1; min-width: 0; }
+  .user-info .name {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: 'SF Mono', Consolas, monospace;
+  }
+  .user-info .role {
+    font-size: 10.5px;
+    color: #4b5563;
+    font-family: 'SF Mono', Consolas, monospace;
+  }
+  .logout {
+    background: none;
+    border: none;
+    color: #4b5563;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 5px;
+    display: grid;
+    place-items: center;
+    transition: background .12s, color .12s;
+  }
+  .logout:hover { background: #1a1a1a; color: #f87171; }
+
+  /* ─── MAIN ─── */
+  .main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: #000;
+  }
+  .topbar {
+    border-bottom: 1px solid #1a1a1a;
+    padding: 0 28px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .breadcrumb {
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 12.5px;
+    color: #4b5563;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .breadcrumb strong { color: #e5e7eb; font-weight: 500; }
+  .breadcrumb .sep { color: #1f1f1f; }
+
+  .status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 11px;
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, .3);
+    background: rgba(52, 211, 153, .06);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+  .status-chip::before {
+    content: '';
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 6px #34d399;
+  }
+
+  .content {
+    padding: 28px;
+    flex: 1;
+    overflow-y: auto;
+  }
+  .page-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 28px;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .page-head h1 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -.025em;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .page-head .sub {
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 12.5px;
+    color: #4b5563;
+  }
+  .page-head .sub code {
+    color: #34d399;
+    background: rgba(52, 211, 153, .08);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+
+  /* ─── STATS ─── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .stat {
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    border-radius: 10px;
+    padding: 16px 18px;
+    transition: border-color .15s;
+  }
+  .stat:hover { border-color: #2a2a2a; }
+  .stat .k {
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 10.5px;
+    color: #4b5563;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    margin-bottom: 8px;
+  }
+  .stat .v {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -.02em;
+    font-family: 'SF Mono', Consolas, monospace;
+  }
+  .stat .d {
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 11px;
+    color: #34d399;
+    margin-top: 4px;
+  }
+
+  /* ─── CARD ─── */
+  .card {
+    background: #0a0a0a;
+    border: 1px solid #1a1a1a;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid #1a1a1a;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .card-head .title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    font-family: 'SF Mono', Consolas, monospace;
+  }
+  .card-head .title::before {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    background: #34d399;
+  }
+  .card-head .desc {
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 11.5px;
+    color: #4b5563;
+    margin-top: 4px;
+  }
+  .card-body { padding: 18px; }
+
+  /* ─── BUTTONS ─── */
+  .btn {
+    padding: 8px 14px;
+    border-radius: 7px;
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'SF Mono', Consolas, monospace;
+    border: 1px solid transparent;
+    transition: background .12s, border-color .12s, opacity .12s;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .btn-primary {
+    background: #fff;
+    color: #000;
+  }
+  .btn-primary:hover { background: #e5e7eb; }
+  .btn-ghost {
+    background: #111;
+    color: #e5e7eb;
+    border-color: #1f1f1f;
+  }
+  .btn-ghost:hover { background: #1a1a1a; border-color: #2a2a2a; }
+  .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* ─── DENIED ─── */
+  .denied {
+    display: none;
+    text-align: center;
+    padding: 60px 24px;
+    background: #0a0a0a;
+    border: 1px solid rgba(239, 68, 68, .2);
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+  .denied.show { display: block; }
+  .denied .icon {
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 32px;
+    color: #ef4444;
+    margin-bottom: 16px;
+  }
+  .denied h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #f87171;
+    margin-bottom: 6px;
+    font-family: 'SF Mono', Consolas, monospace;
+  }
+  .denied p {
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 12.5px;
+    color: #6b7280;
+  }
+
+  /* ─── ADMIN ZONE ─── */
+  .admin-zone { display: none; }
+  .admin-zone.show { display: block; }
+
+  .flag-banner {
+    background: linear-gradient(135deg, #0a2e1f 0%, #0a0a0a 100%);
+    border: 1px solid rgba(52, 211, 153, .3);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .flag-banner .label {
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 10px;
+    color: #34d399;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .flag-banner .value {
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: #6ee7b7;
+    letter-spacing: .02em;
+    word-break: break-all;
+  }
+  .flag-banner .access {
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 11px;
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, .4);
+    padding: 5px 12px;
+    border-radius: 20px;
+    background: rgba(52, 211, 153, .08);
+    white-space: nowrap;
+  }
+
+  /* ─── TABLE ─── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 12.5px;
+  }
+  th {
+    text-align: left;
+    padding: 10px 14px;
+    background: #0f0f0f;
+    color: #4b5563;
+    font-weight: 500;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  td {
+    padding: 11px 14px;
+    border-bottom: 1px solid #141414;
+    color: #9ca3af;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #0f0f0f; }
+  td strong { color: #fff; font-weight: 500; }
+  td .accent { color: #34d399; }
+  td .warn { color: #fbbf24; }
+  td .danger { color: #f87171; }
+
+  /* ─── LOGS ─── */
+  .logs {
+    list-style: none;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 12px;
+  }
+  .logs li {
+    display: flex;
+    gap: 14px;
+    padding: 9px 0;
+    border-bottom: 1px solid #141414;
+    color: #9ca3af;
+  }
+  .logs li:last-child { border-bottom: none; }
+  .logs .t { color: #4b5563; flex-shrink: 0; }
+  .logs .m { color: #d1d5db; }
+
+  /* ─── SECRETS ─── */
+  .secrets {
+    display: grid;
+    gap: 8px;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 12.5px;
+  }
+  .secret-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    background: #0f0f0f;
+    border: 1px solid #1a1a1a;
+    border-radius: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .secret-row .k { color: #4b5563; }
+  .secret-row .v { color: #fbbf24; word-break: break-all; }
+  .secret-row .v::before { content: '● '; color: #ef4444; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="side-logo">
+      <div class="logo-mark"></div>
+      Pulsar
+    </div>
+
+    <div class="nav-label">cluster</div>
+    <a class="nav-item active">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      overview
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      jobs
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      metrics
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      logs
+    </a>
+
+    <div class="nav-label">admin</div>
+    <a class="nav-item" onclick="loadAdmin('/api/admin/vulnerable')" style="cursor:pointer;">
+      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      root_access
+    </a>
+
+    <div class="side-bottom">
+      <div class="avatar" id="avatar">--</div>
+      <div class="user-info">
+        <div class="name" id="username">--</div>
+        <div class="role" id="role">--</div>
+      </div>
+      <button class="logout" onclick="logout()" title="logout">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="breadcrumb">
+        pulsar <span class="sep">/</span> <strong>overview</strong>
+      </div>
+      <div class="status-chip">cluster healthy</div>
+    </div>
+
+    <div class="content">
+
+      <div class="page-head">
+        <div>
+          <h1 id="pageTitle">Bonjour</h1>
+          <div class="sub">session · <code id="sessionId">jwt-hs256</code></div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="k">GPU actifs</div>
+          <div class="v">1 976</div>
+          <div class="d">+ 12 % / 24h</div>
+        </div>
+        <div class="stat">
+          <div class="k">Jobs en cours</div>
+          <div class="v">247</div>
+          <div class="d">queue : 42</div>
+        </div>
+        <div class="stat">
+          <div class="k">Uptime</div>
+          <div class="v">99.997%</div>
+          <div class="d">30 jours</div>
+        </div>
+        <div class="stat">
+          <div class="k">Coût / heure</div>
+          <div class="v">48 €</div>
+          <div class="d">- 3.2 % / mois</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="title">root_access</div>
+            <div class="desc">zone réservée — accès restreint</div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-primary" onclick="loadAdmin('/api/admin/vulnerable')">open (vulnerable)</button>
+            <button class="btn btn-ghost" onclick="loadAdmin('/api/admin/secure')">open (secure)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="denied" id="deniedBox">
+        <div class="icon">[ 403 ]</div>
+        <h2>access_denied</h2>
+        <p>insufficient permissions for this resource</p>
+      </div>
+
+      <div class="admin-zone" id="adminZone">
+        <div class="flag-banner">
+          <div>
+            <div class="label">FLAG</div>
+            <div class="value" id="flagValue">SPECTRA{...}</div>
+          </div>
+          <div class="access">ACCESS GRANTED</div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="title">cluster_stats</div>
+          </div>
+          <div class="card-body">
+            <div class="stats" id="statsBox" style="margin:0;"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="title">active_jobs</div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead>
+                <tr><th>ID</th><th>Nom</th><th>GPU</th><th>ETA</th><th>Priorité</th></tr>
+              </thead>
+              <tbody id="jobsBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="title">secrets_leak</div>
+            <div class="desc" style="color:#f87171;">⚠ données sensibles exposées</div>
+          </div>
+          <div class="card-body">
+            <div class="secrets" id="secretsBox"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="title">activity_log</div>
+          </div>
+          <div class="card-body">
+            <ul class="logs" id="logsList"></ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  async function loadUser() {
+    const r = await fetch('/api/me');
+    const d = await r.json();
+    if (!d.ok) { window.location.href = '/'; return; }
+
+    document.getElementById('username').textContent = d.user.username;
+    document.getElementById('avatar').textContent = d.user.username[0].toUpperCase();
+    document.getElementById('role').textContent = d.user.role || 'user';
+    document.getElementById('pageTitle').textContent = 'Bonjour, ' + d.user.username;
+  }
+
+  async function loadAdmin(url) {
+    document.getElementById('deniedBox').classList.remove('show');
+    document.getElementById('adminZone').classList.remove('show');
+
+    const r = await fetch(url);
+    const d = await r.json();
+
+    if (!d.ok) {
+      document.getElementById('deniedBox').classList.add('show');
+      return;
+    }
+
+    renderAdmin(d.data);
+    document.getElementById('adminZone').classList.add('show');
+  }
+
+  function renderAdmin(data) {
+    document.getElementById('flagValue').textContent = data.flag || 'SPECTRA{no_flag}';
+
+    const stats = document.getElementById('statsBox');
+    stats.innerHTML = '';
+    for (const [k, v] of Object.entries(data.cluster || {})) {
+      const label = k.replace(/_/g, ' ');
+      stats.innerHTML += `<div class="stat"><div class="k">${label}</div><div class="v">${v}</div></div>`;
+    }
+
+    const jobs = document.getElementById('jobsBody');
+    jobs.innerHTML = '';
+    (data.jobs || []).forEach(j => {
+      const cls = j.priorite === 'haute' ? 'danger' : (j.priorite === 'normale' ? 'accent' : '');
+      jobs.innerHTML += `
+        <tr>
+          <td>${j.id}</td>
+          <td><strong>${j.nom}</strong></td>
+          <td>${j.gpu}× H100</td>
+          <td>${j.eta}</td>
+          <td><span class="${cls}">${j.priorite}</span></td>
+        </tr>`;
+    });
+
+    const secrets = document.getElementById('secretsBox');
+    secrets.innerHTML = '';
+    for (const [k, v] of Object.entries(data.secrets || {})) {
+      secrets.innerHTML += `<div class="secret-row"><span class="k">${k}</span><span class="v">${v}</span></div>`;
+    }
+
+    const logs = document.getElementById('logsList');
+    logs.innerHTML = '';
+    (data.logs || []).forEach(l => {
+      const [t, ...rest] = l.split(' — ');
+      logs.innerHTML += `<li><span class="t">${t}</span><span class="m">${rest.join(' — ')}</span></li>`;
+    });
+  }
+
+  function logout() {
+    document.cookie = 'token=; path=/; max-age=0';
+    window.location.href = '/';
+  }
+
+  loadUser();
+</script>
+
+</body>
+</html>

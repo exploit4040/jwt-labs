@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tableau de bord</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f4f6fb;
+    color: #1a1f36;
+    min-height: 100vh;
+  }
+  header {
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 0 32px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .brand {
+    font-size: 17px;
+    font-weight: 700;
+    color: #4f46e5;
+    letter-spacing: -.02em;
+  }
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 14px;
+    color: #6b7280;
+  }
+  .avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #eef2ff;
+    color: #4f46e5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .logout {
+    background: none;
+    border: 1px solid #d1d5db;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    color: #374151;
+  }
+  .logout:hover { background: #f9fafb; }
+
+  main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 24px;
+  }
+  h1 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .welcome {
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 32px;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .card h3 {
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .card .value {
+    font-size: 22px;
+    font-weight: 600;
+  }
+
+  .panel {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .panel h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+  .btn {
+    padding: 9px 18px;
+    background: #4f46e5;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    margin-right: 8px;
+    transition: background .15s;
+  }
+  .btn:hover { background: #4338ca; }
+  .btn.secondary {
+    background: #fff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+  }
+  .btn.secondary:hover { background: #f9fafb; }
+
+  /* ==== ZONE REFUS ==== */
+  .denied {
+    display: none;
+    text-align: center;
+    padding: 60px 24px;
+    background: #fff;
+    border: 1px solid #fee2e2;
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+  .denied.show { display: block; }
+  .denied .lock-icon {
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: #fef2f2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+  }
+  .denied h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #b91c1c;
+    margin-bottom: 8px;
+  }
+  .denied p {
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+  .denied .hint {
+    margin-top: 20px;
+    font-size: 12.5px;
+    color: #9ca3af;
+  }
+
+  /* ==== ZONE ADMIN ==== */
+  .admin-zone { display: none; }
+  .admin-zone.show { display: block; }
+  .admin-banner {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: #fff;
+    padding: 20px 24px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .admin-banner h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+  }
+  .admin-banner .badge {
+    background: rgba(255,255,255,.2);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .05em;
+  }
+
+  .flag-box {
+    background: #0f172a;
+    color: #4ade80;
+    padding: 18px 22px;
+    border-radius: 10px;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .flag-box .label {
+    font-size: 11px;
+    color: #94a3b8;
+    font-weight: 500;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+
+  .admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .admin-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .admin-card h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    color: #1a1f36;
+  }
+  .admin-card .stat-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 13.5px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  .admin-card .stat-line:last-child { border-bottom: none; }
+  .admin-card .stat-line span:first-child { color: #6b7280; }
+  .admin-card .stat-line span:last-child { font-weight: 600; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  th {
+    text-align: left;
+    padding: 10px 12px;
+    background: #f9fafb;
+    color: #6b7280;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  td {
+    padding: 11px 12px;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  tr:last-child td { border-bottom: none; }
+  .role-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+  .role-tag.admin { background: #ede9fe; color: #6d28d9; }
+  .role-tag.mod   { background: #dbeafe; color: #1d4ed8; }
+  .role-tag.user  { background: #f3f4f6; color: #4b5563; }
+  .status-dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+  .status-dot.actif   { background: #22c55e; }
+  .status-dot.inactif { background: #d1d5db; }
+
+  .logs {
+    list-style: none;
+    font-size: 13px;
+    color: #4b5563;
+  }
+  .logs li {
+    padding: 8px 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 12.5px;
+  }
+  .logs li:last-child { border-bottom: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">ACME Corp</div>
+  <div class="user-info">
+    <div class="avatar" id="avatar">--</div>
+    <span id="username">--</span>
+    <button class="logout" onclick="logout()">Déconnexion</button>
+  </div>
+</header>
+
+<main>
+  <h1>Tableau de bord</h1>
+  <p class="welcome" id="welcome">Bienvenue</p>
+
+  <div class="cards">
+    <div class="card"><h3>Commandes</h3><div class="value">12</div></div>
+    <div class="card"><h3>Factures</h3><div class="value">4</div></div>
+    <div class="card"><h3>Support</h3><div class="value">1</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>Espace administrateur</h2>
+    <button class="btn" onclick="loadAdmin('/api/admin/data')">Rapport interne</button>
+    <button class="btn secondary" onclick="loadAdmin('/api/admin/secure')">Version sécurisée</button>
+  </div>
+
+  <!-- Message d'accès refusé -->
+  <div class="denied" id="deniedBox">
+    <div class="lock-icon">🔒</div>
+    <h2>Accès refusé</h2>
+    <p>Vous n'avez pas les permissions nécessaires pour accéder à cette ressource.</p>
+    <p class="hint">Code : 403 - Forbidden</p>
+  </div>
+
+  <!-- Panneau admin -->
+  <div class="admin-zone" id="adminZone">
+    <div class="admin-banner">
+      <h2>Panneau d'administration</h2>
+      <span class="badge">ACCÈS ACCORDÉ</span>
+    </div>
+
+    <div class="flag-box">
+      <span class="label">Flag</span>
+      <span id="flagValue">SPECTRA{...}</span>
+    </div>
+
+    <div class="admin-grid">
+      <div class="admin-card">
+        <h3>Statistiques</h3>
+        <div id="statsBox"></div>
+      </div>
+      <div class="admin-card">
+        <h3>Configuration</h3>
+        <div id="settingsBox"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Utilisateurs</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Nom</th><th>Email</th><th>Rôle</th><th>Statut</th>
+          </tr>
+        </thead>
+        <tbody id="usersBody"></tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h2>Journaux d'activité</h2>
+      <ul class="logs" id="logsList"></ul>
+    </div>
+  </div>
+</main>
+
+<script>
+  async function loadUser() {
+    const r = await fetch('/api/me');
+    const d = await r.json();
+    if (!d.ok) { window.location.href = '/'; return; }
+    document.getElementById('username').textContent = d.user.username;
+    document.getElementById('avatar').textContent = d.user.username[0].toUpperCase();
+    document.getElementById('welcome').textContent = 'Bienvenue, ' + d.user.username;
+  }
+
+  async function loadAdmin(url) {
+    hideAll();
+    const r = await fetch(url);
+    const d = await r.json();
+
+    if (!d.ok) {
+      document.getElementById('deniedBox').classList.add('show');
+      return;
+    }
+
+    renderAdmin(d.data);
+    document.getElementById('adminZone').classList.add('show');
+  }
+
+  function hideAll() {
+    document.getElementById('deniedBox').classList.remove('show');
+    document.getElementById('adminZone').classList.remove('show');
+  }
+
+  function renderAdmin(data) {
+    document.getElementById('flagValue').textContent = data.flag || 'SPECTRA{no_flag}';
+
+    const stats = document.getElementById('statsBox');
+    stats.innerHTML = '';
+    for (const [k, v] of Object.entries(data.stats || {})) {
+      stats.innerHTML += `<div class="stat-line"><span>${k}</span><span>${v}</span></div>`;
+    }
+
+    const settings = document.getElementById('settingsBox');
+    settings.innerHTML = '';
+    for (const [k, v] of Object.entries(data.settings || {})) {
+      const val = typeof v === 'boolean' ? (v ? 'Activé' : 'Désactivé') : v;
+      settings.innerHTML += `<div class="stat-line"><span>${k}</span><span>${val}</span></div>`;
+    }
+
+    const tbody = document.getElementById('usersBody');
+    tbody.innerHTML = '';
+    (data.users || []).forEach(u => {
+      const statusClass = u.status === 'actif' ? 'actif' : 'inactif';
+      tbody.innerHTML += `
+        <tr>
+          <td>${u.id}</td>
+          <td><strong>${u.username}</strong></td>
+          <td>${u.email}</td>
+          <td><span class="role-tag ${u.role}">${u.role}</span></td>
+          <td><span class="status-dot ${statusClass}"></span>${u.status}</td>
+        </tr>`;
+    });
+
+    const logs = document.getElementById('logsList');
+    logs.innerHTML = '';
+    (data.logs || []).forEach(l => {
+      logs.innerHTML += `<li>${l}</li>`;
+    });
+  }
+
+  function logout() {
+    document.cookie = 'token=; path=/; max-age=0';
+    window.location.href = '/';
+  }
+
+  loadUser();
+</script>
+</body>
+</html>

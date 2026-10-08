@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orbit Cloud — Tableau de bord</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f6f9ff;
+    color: #0b1a33;
+    min-height: 100vh;
+  }
+  header {
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0 32px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .brand {
+    font-size: 17px;
+    font-weight: 700;
+    color: #0284c7;
+    letter-spacing: -.02em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .brand::before {
+    content: '';
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #38bdf8, #0284c7);
+  }
+  .user-info { display: flex; align-items: center; gap: 14px; font-size: 14px; color: #64748b; }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: #e0f2fe; color: #0284c7;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 13px;
+  }
+  .logout {
+    background: none; border: 1px solid #cbd5e1;
+    padding: 6px 14px; border-radius: 6px;
+    font-size: 13px; cursor: pointer; font-family: inherit; color: #334155;
+  }
+  .logout:hover { background: #f8fafc; }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 40px 24px; }
+  h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+  .welcome { color: #64748b; font-size: 14px; margin-bottom: 32px; }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px; margin-bottom: 24px;
+  }
+  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; }
+  .card h3 { font-size: 13px; color: #64748b; font-weight: 500; margin-bottom: 8px; }
+  .card .value { font-size: 22px; font-weight: 600; }
+
+  .panel {
+    background: #fff; border: 1px solid #e2e8f0;
+    border-radius: 10px; padding: 24px; margin-bottom: 16px;
+  }
+  .panel h2 { font-size: 16px; font-weight: 600; margin-bottom: 14px; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: .03em;
+  }
+  .badge.free    { background: #f1f5f9; color: #64748b; }
+  .badge.premium { background: #fef3c7; color: #a16207; }
+
+  .info-line {
+    display: flex; justify-content: space-between;
+    padding: 8px 0; font-size: 13.5px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .info-line:last-child { border-bottom: none; }
+  .info-line span:first-child { color: #64748b; }
+  .info-line span:last-child { font-weight: 600; }
+
+  .btn {
+    padding: 9px 18px; background: #0284c7; color: #fff;
+    border: none; border-radius: 6px; font-size: 13.5px;
+    font-weight: 500; cursor: pointer; font-family: inherit;
+    margin-right: 8px; transition: background .15s;
+  }
+  .btn:hover { background: #0369a1; }
+  .btn.secondary {
+    background: #fff; color: #334155; border: 1px solid #cbd5e1;
+  }
+  .btn.secondary:hover { background: #f8fafc; }
+
+  .denied {
+    display: none; text-align: center;
+    padding: 60px 24px; background: #fff;
+    border: 1px solid #fee2e2; border-radius: 12px;
+    margin-bottom: 16px;
+  }
+  .denied.show { display: block; }
+  .denied .lock-icon {
+    width: 68px; height: 68px; margin: 0 auto 20px;
+    border-radius: 50%; background: #fef2f2;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px;
+  }
+  .denied h2 { font-size: 22px; font-weight: 700; color: #b91c1c; margin-bottom: 8px; }
+  .denied p { color: #64748b; font-size: 14px; margin-bottom: 4px; }
+  .denied .hint { margin-top: 20px; font-size: 12.5px; color: #94a3b8; }
+
+  .premium-zone { display: none; }
+  .premium-zone.show { display: block; }
+  .premium-banner {
+    background: linear-gradient(135deg, #0284c7, #0369a1);
+    color: #fff; padding: 20px 24px; border-radius: 10px;
+    margin-bottom: 20px; display: flex;
+    align-items: center; justify-content: space-between;
+  }
+  .premium-banner h2 { font-size: 18px; font-weight: 600; margin: 0; }
+  .premium-banner .badge {
+    background: rgba(255,255,255,.2); padding: 5px 12px;
+    border-radius: 20px; font-size: 12px; font-weight: 600;
+    letter-spacing: .05em; color: #fff;
+  }
+  .flag-box {
+    background: #0b1a33; color: #4ade80;
+    padding: 18px 22px; border-radius: 10px;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 15px; font-weight: 600; letter-spacing: .04em;
+    margin-bottom: 20px; display: flex; align-items: center; gap: 12px;
+  }
+  .flag-box .label {
+    font-size: 11px; color: #94a3b8; font-weight: 500;
+    letter-spacing: .1em; text-transform: uppercase;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px; margin-bottom: 20px;
+  }
+  .mini-card {
+    background: #fff; border: 1px solid #e2e8f0;
+    border-radius: 10px; padding: 20px;
+  }
+  .mini-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 14px; }
+  .mini-card .stat-line {
+    display: flex; justify-content: space-between;
+    padding: 8px 0; font-size: 13.5px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .mini-card .stat-line:last-child { border-bottom: none; }
+  .mini-card .stat-line span:first-child { color: #64748b; }
+  .mini-card .stat-line span:last-child { font-weight: 600; }
+
+  .logs { list-style: none; font-size: 13px; color: #475569; }
+  .logs li {
+    padding: 8px 0; border-bottom: 1px solid #f1f5f9;
+    font-family: 'SF Mono', Consolas, monospace; font-size: 12.5px;
+  }
+  .logs li:last-child { border-bottom: none; }
+
+  .features { list-style: none; display: grid; gap: 8px; }
+  .features li {
+    font-size: 13.5px; padding: 8px 12px;
+    background: #f0f9ff; border-left: 3px solid #0284c7;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">Orbit Cloud</div>
+  <div class="user-info">
+    <div class="avatar" id="avatar">--</div>
+    <span id="username">--</span>
+    <button class="logout" onclick="logout()">Déconnexion</button>
+  </div>
+</header>
+
+<main>
+  <h1>Tableau de bord</h1>
+  <p class="welcome" id="welcome">Bienvenue</p>
+
+  <div class="cards">
+    <div class="card"><h3>Stockage utilisé</h3><div class="value">4.2 GB</div></div>
+    <div class="card"><h3>Requêtes / mois</h3><div class="value">28 419</div></div>
+    <div class="card"><h3>Projets actifs</h3><div class="value">3</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>Mon compte</h2>
+    <div class="info-line"><span>Email</span><span id="currentEmail">--</span></div>
+    <div class="info-line"><span>Plan</span><span id="currentPlan">--</span></div>
+    <div class="info-line"><span>Premium</span><span id="currentPremium">--</span></div>
+  </div>
+
+  <div class="panel">
+    <h2>Contenu Premium</h2>
+    <p style="font-size:13.5px;color:#64748b;margin-bottom:14px;">
+      Accédez aux fonctionnalités avancées réservées aux abonnés.
+    </p>
+    <button class="btn" onclick="loadPremium('/api/premium/vulnerable')">Accéder (vulnérable)</button>
+    <button class="btn secondary" onclick="loadPremium('/api/premium/secure')">Accéder (sécurisé)</button>
+  </div>
+
+  <div class="denied" id="deniedBox">
+    <div class="lock-icon">🔒</div>
+    <h2>Accès refusé</h2>
+    <p>Cette fonctionnalité est réservée aux abonnés Premium.</p>
+    <p class="hint">Code : 403 - Forbidden</p>
+  </div>
+
+  <div class="premium-zone" id="premiumZone">
+    <div class="premium-banner">
+      <h2>Espace Premium</h2>
+      <span class="badge">ACCÈS ACCORDÉ</span>
+    </div>
+
+    <div class="flag-box">
+      <span class="label">Flag</span>
+      <span id="flagValue">SPECTRA{...}</span>
+    </div>
+
+    <div class="grid-2">
+      <div class="mini-card">
+        <h3>Statistiques avancées</h3>
+        <div id="statsBox"></div>
+      </div>
+      <div class="mini-card">
+        <h3>Fonctionnalités débloquées</h3>
+        <ul class="features" id="featuresList"></ul>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Journaux d'activité</h2>
+      <ul class="logs" id="logsList"></ul>
+    </div>
+  </div>
+</main>
+
+<script>
+  async function loadUser() {
+    const r = await fetch('/api/me');
+    const d = await r.json();
+    if (!d.ok) { window.location.href = '/'; return; }
+
+    document.getElementById('username').textContent = d.user.username;
+    document.getElementById('avatar').textContent = d.user.username[0].toUpperCase();
+    document.getElementById('welcome').textContent = 'Bienvenue, ' + d.user.username;
+
+    document.getElementById('currentEmail').textContent = d.user.email || '--';
+    document.getElementById('currentPlan').textContent = d.user.plan || 'free';
+    document.getElementById('currentPremium').textContent = d.user.isPremium ? 'oui' : 'non';
+  }
+
+  async function loadPremium(url) {
+    document.getElementById('deniedBox').classList.remove('show');
+    document.getElementById('premiumZone').classList.remove('show');
+
+    const r = await fetch(url);
+    const d = await r.json();
+
+    if (!d.ok) {
+      document.getElementById('deniedBox').classList.add('show');
+      return;
+    }
+
+    renderPremium(d.data);
+    document.getElementById('premiumZone').classList.add('show');
+  }
+
+  function renderPremium(data) {
+    document.getElementById('flagValue').textContent = data.flag || 'SPECTRA{no_flag}';
+
+    const stats = document.getElementById('statsBox');
+    stats.innerHTML = '';
+    for (const [k, v] of Object.entries(data.stats || {})) {
+      stats.innerHTML += `<div class="stat-line"><span>${k}</span><span>${v}</span></div>`;
+    }
+
+    const feats = document.getElementById('featuresList');
+    feats.innerHTML = '';
+    (data.account?.features || []).forEach(f => {
+      feats.innerHTML += `<li>${f}</li>`;
+    });
+
+    const logs = document.getElementById('logsList');
+    logs.innerHTML = '';
+    (data.logs || []).forEach(l => {
+      logs.innerHTML += `<li>${l}</li>`;
+    });
+  }
+
+  function logout() {
+    document.cookie = 'token=; path=/; max-age=0';
+    window.location.href = '/';
+  }
+
+  loadUser();
+</script>
+</body>
+</html>

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nova Bank — Tableau de bord</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f6f7fb;
+    color: #0b1a33;
+    min-height: 100vh;
+  }
+  header {
+    background: #0f172a;
+    padding: 0 32px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .brand {
+    font-size: 17px;
+    font-weight: 700;
+    color: #d4af37;
+    letter-spacing: -.02em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .brand::before {
+    content: 'N';
+    width: 20px; height: 20px;
+    border-radius: 5px;
+    background: linear-gradient(135deg, #d4af37, #b8860b);
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 11px;
+  }
+  .user-info { display: flex; align-items: center; gap: 14px; font-size: 14px; color: #cbd5e1; }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: #1e293b; color: #d4af37;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 13px;
+    border: 1px solid #d4af37;
+  }
+  .logout {
+    background: none; border: 1px solid #475569;
+    padding: 6px 14px; border-radius: 6px;
+    font-size: 13px; cursor: pointer; font-family: inherit; color: #cbd5e1;
+  }
+  .logout:hover { background: #1e293b; }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 40px 24px; }
+  h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+  .welcome { color: #64748b; font-size: 14px; margin-bottom: 32px; }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px; margin-bottom: 24px;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px; padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #d4af37, #b8860b);
+  }
+  .card h3 { font-size: 13px; color: #64748b; font-weight: 500; margin-bottom: 8px; }
+  .card .value { font-size: 22px; font-weight: 600; }
+
+  .panel {
+    background: #fff; border: 1px solid #e2e8f0;
+    border-radius: 10px; padding: 24px; margin-bottom: 16px;
+  }
+  .panel h2 { font-size: 16px; font-weight: 600; margin-bottom: 14px; }
+
+  .info-line {
+    display: flex; justify-content: space-between;
+    padding: 8px 0; font-size: 13.5px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .info-line:last-child { border-bottom: none; }
+  .info-line span:first-child { color: #64748b; }
+  .info-line span:last-child { font-weight: 600; }
+
+  .btn {
+    padding: 9px 18px; background: #0f172a; color: #fff;
+    border: none; border-radius: 6px; font-size: 13.5px;
+    font-weight: 500; cursor: pointer; font-family: inherit;
+    margin-right: 8px; transition: background .15s;
+  }
+  .btn:hover { background: #1e293b; }
+  .btn.secondary {
+    background: #fff; color: #334155; border: 1px solid #cbd5e1;
+  }
+  .btn.secondary:hover { background: #f8fafc; }
+
+  .denied {
+    display: none; text-align: center;
+    padding: 60px 24px; background: #fff;
+    border: 1px solid #fee2e2; border-radius: 12px;
+    margin-bottom: 16px;
+  }
+  .denied.show { display: block; }
+  .denied .lock-icon {
+    width: 68px; height: 68px; margin: 0 auto 20px;
+    border-radius: 50%; background: #fef2f2;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px;
+  }
+  .denied h2 { font-size: 22px; font-weight: 700; color: #b91c1c; margin-bottom: 8px; }
+  .denied p { color: #64748b; font-size: 14px; margin-bottom: 4px; }
+  .denied .hint { margin-top: 20px; font-size: 12.5px; color: #94a3b8; }
+
+  .admin-zone { display: none; }
+  .admin-zone.show { display: block; }
+  .admin-banner {
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: #fff; padding: 20px 24px; border-radius: 10px;
+    margin-bottom: 20px; display: flex;
+    align-items: center; justify-content: space-between;
+    border: 1px solid #d4af37;
+  }
+  .admin-banner h2 { font-size: 18px; font-weight: 600; margin: 0; color: #d4af37; }
+  .admin-banner .badge {
+    background: rgba(212, 175, 55, .2); padding: 5px 12px;
+    border-radius: 20px; font-size: 12px; font-weight: 600;
+    letter-spacing: .05em; color: #d4af37;
+  }
+  .flag-box {
+    background: #0f172a; color: #4ade80;
+    padding: 18px 22px; border-radius: 10px;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 15px; font-weight: 600; letter-spacing: .04em;
+    margin-bottom: 20px; display: flex; align-items: center; gap: 12px;
+  }
+  .flag-box .label {
+    font-size: 11px; color: #94a3b8; font-weight: 500;
+    letter-spacing: .1em; text-transform: uppercase;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px; margin-bottom: 20px;
+  }
+  .mini-card {
+    background: #fff; border: 1px solid #e2e8f0;
+    border-radius: 10px; padding: 20px;
+  }
+  .mini-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 14px; }
+  .mini-card .stat-line {
+    display: flex; justify-content: space-between;
+    padding: 8px 0; font-size: 13.5px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .mini-card .stat-line:last-child { border-bottom: none; }
+  .mini-card .stat-line span:first-child { color: #64748b; }
+  .mini-card .stat-line span:last-child { font-weight: 600; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th {
+    text-align: left; padding: 10px 12px;
+    background: #f8fafc; color: #64748b;
+    font-weight: 600; font-size: 12px;
+    text-transform: uppercase; letter-spacing: .04em;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  td { padding: 11px 12px; border-bottom: 1px solid #f1f5f9; }
+  tr:last-child td { border-bottom: none; }
+  .role-tag {
+    display: inline-block; padding: 3px 10px;
+    border-radius: 12px; font-size: 11.5px; font-weight: 600;
+  }
+  .role-tag.admin { background: #fef3c7; color: #a16207; }
+  .role-tag.mod   { background: #dbeafe; color: #1d4ed8; }
+  .role-tag.user  { background: #f1f5f9; color: #475569; }
+  .status-dot {
+    display: inline-block; width: 7px; height: 7px;
+    border-radius: 50%; margin-right: 6px;
+  }
+  .status-dot.actif   { background: #22c55e; }
+  .status-dot.inactif { background: #d1d5db; }
+
+  .logs { list-style: none; font-size: 13px; color: #475569; }
+  .logs li {
+    padding: 8px 0; border-bottom: 1px solid #f1f5f9;
+    font-family: 'SF Mono', Consolas, monospace; font-size: 12.5px;
+  }
+  .logs li:last-child { border-bottom: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">Nova Bank</div>
+  <div class="user-info">
+    <div class="avatar" id="avatar">--</div>
+    <span id="username">--</span>
+    <button class="logout" onclick="logout()">Déconnexion</button>
+  </div>
+</header>
+
+<main>
+  <h1>Tableau de bord</h1>
+  <p class="welcome" id="welcome">Bienvenue</p>
+
+  <div class="cards">
+    <div class="card"><h3>Solde courant</h3><div class="value">2 480,50 EUR</div></div>
+    <div class="card"><h3>Virements ce mois</h3><div class="value">7</div></div>
+    <div class="card"><h3>Cartes actives</h3><div class="value">2</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>Mon compte</h2>
+    <div class="info-line"><span>Email</span><span id="currentEmail">--</span></div>
+    <div class="info-line"><span>Rôle</span><span id="currentRole">--</span></div>
+    <div class="info-line"><span>Identifiant</span><span id="currentSub">--</span></div>
+  </div>
+
+  <div class="panel">
+    <h2>Coffre-fort interne</h2>
+    <p style="font-size:13.5px;color:#64748b;margin-bottom:14px;">
+      Accès réservé aux administrateurs Nova Bank.
+    </p>
+    <button class="btn" onclick="loadAdmin('/api/admin/vulnerable')">Ouvrir (vulnérable)</button>
+    <button class="btn secondary" onclick="loadAdmin('/api/admin/secure')">Ouvrir (sécurisé)</button>
+  </div>
+
+  <div class="denied" id="deniedBox">
+    <div class="lock-icon">🔒</div>
+    <h2>Accès refusé</h2>
+    <p>Vous n'avez pas les permissions nécessaires pour accéder au coffre-fort.</p>
+    <p class="hint">Code : 403 - Forbidden</p>
+  </div>
+
+  <div class="admin-zone" id="adminZone">
+    <div class="admin-banner">
+      <h2>Coffre-fort interne</h2>
+      <span class="badge">ACCÈS ACCORDÉ</span>
+    </div>
+
+    <div class="flag-box">
+      <span class="label">Flag</span>
+      <span id="flagValue">SPECTRA{...}</span>
+    </div>
+
+    <div class="grid-2">
+      <div class="mini-card">
+        <h3>Métriques</h3>
+        <div id="statsBox"></div>
+      </div>
+      <div class="mini-card">
+        <h3>Détails</h3>
+        <div class="stat-line"><span>Chiffrement</span><span>RS256</span></div>
+        <div class="stat-line"><span>Période</span><span>Q4 2024</span></div>
+        <div class="stat-line"><span>Audit</span><span>Conforme</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Utilisateurs enregistrés</h2>
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Nom</th><th>Email</th><th>Rôle</th><th>Statut</th></tr>
+        </thead>
+        <tbody id="usersBody"></tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h2>Journaux d'activité</h2>
+      <ul class="logs" id="logsList"></ul>
+    </div>
+  </div>
+</main>
+
+<script>
+  async function loadUser() {
+    const r = await fetch('/api/me');
+    const d = await r.json();
+    if (!d.ok) { window.location.href = '/'; return; }
+
+    document.getElementById('username').textContent = d.user.username;
+    document.getElementById('avatar').textContent = d.user.username[0].toUpperCase();
+    document.getElementById('welcome').textContent = 'Bienvenue, ' + d.user.username;
+
+    document.getElementById('currentEmail').textContent = d.user.email || '--';
+    document.getElementById('currentRole').textContent = d.user.role || '--';
+    document.getElementById('currentSub').textContent = d.user.sub || '--';
+  }
+
+  async function loadAdmin(url) {
+    document.getElementById('deniedBox').classList.remove('show');
+    document.getElementById('adminZone').classList.remove('show');
+
+    const r = await fetch(url);
+    const d = await r.json();
+
+    if (!d.ok) {
+      document.getElementById('deniedBox').classList.add('show');
+      return;
+    }
+
+    renderAdmin(d.data);
+    document.getElementById('adminZone').classList.add('show');
+  }
+
+  function renderAdmin(data) {
+    document.getElementById('flagValue').textContent = data.flag || 'SPECTRA{no_flag}';
+
+    const stats = document.getElementById('statsBox');
+    stats.innerHTML = '';
+    for (const [k, v] of Object.entries(data.vault || {})) {
+      stats.innerHTML += `<div class="stat-line"><span>${k}</span><span>${v}</span></div>`;
+    }
+
+    const tbody = document.getElementById('usersBody');
+    tbody.innerHTML = '';
+    (data.users || []).forEach(u => {
+      const statusClass = u.status === 'actif' ? 'actif' : 'inactif';
+      tbody.innerHTML += `
+        <tr>
+          <td>${u.id}</td>
+          <td><strong>${u.username}</strong></td>
+          <td>${u.email}</td>
+          <td><span class="role-tag ${u.role}">${u.role}</span></td>
+          <td><span class="status-dot ${statusClass}"></span>${u.status}</td>
+        </tr>`;
+    });
+
+    const logs = document.getElementById('logsList');
+    logs.innerHTML = '';
+    (data.logs || []).forEach(l => {
+      logs.innerHTML += `<li>${l}</li>`;
+    });
+  }
+
+  function logout() {
+    document.cookie = 'token=; path=/; max-age=0';
+    window.location.href = '/';
+  }
+
+  loadUser();
+</script>
+</body>
+</html>

@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vertex Analytics — Console</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f7fb;
+    color: #0f172a;
+    min-height: 100vh;
+  }
+  .app {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    background: #0f172a;
+    color: #cbd5e1;
+    padding: 24px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-right: 1px solid #1e293b;
+  }
+  .side-logo {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    padding: 4px 8px 24px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #1e293b;
+    letter-spacing: -.01em;
+  }
+  .side-logo .mark {
+    width: 32px; height: 32px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    display: grid;
+    place-items: center;
+    box-shadow: 0 6px 18px rgba(99, 102, 241, .4);
+  }
+  .side-logo svg { width: 16px; height: 16px; }
+
+  .nav-section {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: #64748b;
+    font-weight: 600;
+    padding: 16px 8px 8px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #cbd5e1;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+    text-decoration: none;
+  }
+  .nav-item:hover {
+    background: #1e293b;
+    color: #fff;
+  }
+  .nav-item.active {
+    background: linear-gradient(90deg, rgba(99,102,241,.18), rgba(99,102,241,.05));
+    color: #fff;
+    border-left: 3px solid #6366f1;
+    padding-left: 9px;
+  }
+  .nav-item svg {
+    width: 18px; height: 18px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.8;
+    flex-shrink: 0;
+  }
+
+  .side-bottom {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .side-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-weight: 600;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .side-user-info { flex: 1; min-width: 0; }
+  .side-user-info .name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .side-user-info .role {
+    font-size: 11.5px;
+    color: #64748b;
+  }
+  .side-logout {
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    display: grid;
+    place-items: center;
+    transition: background .15s, color .15s;
+  }
+  .side-logout:hover {
+    background: #1e293b;
+    color: #f87171;
+  }
+
+  /* ─── MAIN ─── */
+  .main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0 32px;
+    height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .breadcrumb {
+    font-size: 14px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .breadcrumb strong { color: #0f172a; font-weight: 600; }
+  .breadcrumb svg { width: 14px; height: 14px; stroke: #cbd5e1; fill: none; }
+
+  .topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .search {
+    position: relative;
+    width: 260px;
+  }
+  .search input {
+    width: 100%;
+    padding: 9px 14px 9px 36px;
+    background: #f5f7fb;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color .15s, background .15s;
+  }
+  .search input:focus {
+    border-color: #6366f1;
+    background: #fff;
+  }
+  .search svg {
+    position: absolute;
+    left: 12px; top: 50%;
+    transform: translateY(-50%);
+    width: 15px; height: 15px;
+    stroke: #94a3b8;
+    fill: none;
+    stroke-width: 2;
+  }
+  .icon-btn {
+    width: 38px; height: 38px;
+    border-radius: 9px;
+    background: #f5f7fb;
+    border: 1px solid #e2e8f0;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+  }
+  .icon-btn:hover { background: #eef2ff; border-color: #c7d2fe; }
+  .icon-btn svg { width: 17px; height: 17px; stroke: #475569; fill: none; stroke-width: 1.8; }
+
+  .content {
+    padding: 32px;
+    flex: 1;
+    overflow-y: auto;
+  }
+  .page-title {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -.025em;
+    margin-bottom: 6px;
+  }
+  .page-sub {
+    font-size: 14.5px;
+    color: #64748b;
+    margin-bottom: 32px;
+  }
+
+  /* ─── CARDS ─── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 20px;
+    position: relative;
+    transition: box-shadow .2s, transform .2s;
+  }
+  .stat:hover {
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .06);
+    transform: translateY(-1px);
+  }
+  .stat .stat-label {
+    font-size: 12.5px;
+    color: #64748b;
+    font-weight: 500;
+    letter-spacing: .02em;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .stat .stat-label::before {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    background: #6366f1;
+  }
+  .stat:nth-child(2) .stat-label::before { background: #10b981; }
+  .stat:nth-child(3) .stat-label::before { background: #f59e0b; }
+  .stat:nth-child(4) .stat-label::before { background: #ec4899; }
+  .stat .stat-value {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    color: #0f172a;
+  }
+  .stat .stat-delta {
+    font-size: 12px;
+    color: #10b981;
+    font-weight: 500;
+    margin-top: 6px;
+  }
+
+  /* ─── PANELS ─── */
+  .panel {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .panel-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .panel-head h2 {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    margin-bottom: 4px;
+  }
+  .panel-head p {
+    font-size: 13.5px;
+    color: #64748b;
+  }
+
+  .btn {
+    padding: 10px 18px;
+    border-radius: 9px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    border: none;
+    transition: transform .1s, box-shadow .15s, background .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(99, 102, 241, .25);
+  }
+  .btn-primary:hover {
+    box-shadow: 0 8px 22px rgba(99, 102, 241, .4);
+  }
+  .btn-secondary {
+    background: #fff;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+  }
+  .btn-secondary:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+  }
+  .btn:active { transform: translateY(1px); }
+
+  .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* ─── DENIED ─── */
+  .denied {
+    display: none;
+    text-align: center;
+    padding: 60px 24px;
+    background: #fff;
+    border: 1px solid #fee2e2;
+    border-radius: 14px;
+    margin-bottom: 20px;
+  }
+  .denied.show { display: block; }
+  .denied .lock {
+    width: 72px; height: 72px;
+    margin: 0 auto 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fef2f2, #fee2e2);
+    display: grid;
+    place-items: center;
+    font-size: 30px;
+  }
+  .denied h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #b91c1c;
+    letter-spacing: -.02em;
+    margin-bottom: 8px;
+  }
+  .denied p { color: #64748b; font-size: 14px; margin-bottom: 4px; }
+  .denied .code {
+    margin-top: 18px;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 12px;
+    color: #94a3b8;
+    background: #f8fafc;
+    padding: 6px 14px;
+    border-radius: 6px;
+    display: inline-block;
+    letter-spacing: .04em;
+  }
+
+  /* ─── ADMIN ZONE ─── */
+  .admin-zone { display: none; }
+  .admin-zone.show { display: block; }
+
+  .admin-banner {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+    color: #fff;
+    padding: 26px 28px;
+    border-radius: 14px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+  .admin-banner::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 240px; height: 240px;
+    border-radius: 50%;
+    background: #6366f1;
+    filter: blur(70px);
+    opacity: .5;
+  }
+  .admin-banner > div { position: relative; z-index: 1; }
+  .admin-banner h2 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    margin-bottom: 4px;
+  }
+  .admin-banner p {
+    font-size: 13.5px;
+    color: #cbd5e1;
+  }
+  .admin-badge {
+    background: rgba(16, 185, 129, .15);
+    color: #6ee7b7;
+    border: 1px solid rgba(16, 185, 129, .4);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    position: relative;
+    z-index: 1;
+  }
+
+  .flag-box {
+    background: #0a0e1a;
+    border: 1px solid #1e293b;
+    color: #6ee7b7;
+    padding: 18px 22px;
+    border-radius: 12px;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 14.5px;
+    font-weight: 600;
+    letter-spacing: .03em;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .flag-box .label {
+    font-size: 10.5px;
+    color: #64748b;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    background: rgba(99, 102, 241, .15);
+    border-radius: 4px;
+    color: #a5b4fc;
+  }
+
+  /* ─── TABLE ─── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  th {
+    text-align: left;
+    padding: 12px 14px;
+    background: #f8fafc;
+    color: #64748b;
+    font-weight: 600;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  th:first-child { border-top-left-radius: 8px; }
+  th:last-child { border-top-right-radius: 8px; }
+  td {
+    padding: 13px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f8fafc; }
+  td strong { color: #0f172a; font-weight: 600; }
+
+  .pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: .02em;
+  }
+  .pill.enterprise { background: #ede9fe; color: #6d28d9; }
+  .pill.business   { background: #dbeafe; color: #1d4ed8; }
+  .pill.actif      { background: #d1fae5; color: #047857; }
+
+  /* ─── ACTIVITY ─── */
+  .activity { list-style: none; }
+  .activity li {
+    display: flex;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 13.5px;
+    color: #475569;
+  }
+  .activity li:last-child { border-bottom: none; }
+  .activity li::before {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #6366f1;
+    margin-top: 6px;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, .15);
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="side-logo">
+      <div class="mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      Vertex
+    </div>
+
+    <div class="nav-section">Principal</div>
+    <a class="nav-item active">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Tableau de bord
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>
+      Analytics
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Rapports
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Paramètres
+    </a>
+
+    <div class="nav-section">Admin</div>
+    <a class="nav-item" onclick="loadAdmin('/api/admin/vulnerable')" style="cursor:pointer;">
+      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      Coffre interne
+    </a>
+
+    <div class="side-bottom">
+      <div class="side-avatar" id="sideAvatar">--</div>
+      <div class="side-user-info">
+        <div class="name" id="sideName">--</div>
+        <div class="role" id="sideRole">--</div>
+      </div>
+      <button class="side-logout" onclick="logout()" title="Déconnexion">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <div class="topbar">
+      <div class="breadcrumb">
+        Vertex <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg> <strong>Tableau de bord</strong>
+      </div>
+      <div class="topbar-actions">
+        <div class="search">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Rechercher...">
+        </div>
+        <button class="icon-btn" title="Notifications">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <h1 class="page-title" id="pageTitle">Bonjour</h1>
+      <p class="page-sub">Voici un aperçu de votre activité aujourd'hui.</p>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label">Requêtes API</div>
+          <div class="stat-value">28 419</div>
+          <div class="stat-delta">+12.4 % vs hier</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Utilisateurs actifs</div>
+          <div class="stat-value">1 842</div>
+          <div class="stat-delta">+3.8 % cette semaine</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Taux de conversion</div>
+          <div class="stat-value">4.7 %</div>
+          <div class="stat-delta">+0.3 pt</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Revenu mensuel</div>
+          <div class="stat-value">248k €</div>
+          <div class="stat-delta">+8.1 %</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Coffre-fort analytique</h2>
+            <p>Données sensibles réservées aux administrateurs</p>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-primary" onclick="loadAdmin('/api/admin/vulnerable')">
+              Accéder (vulnérable)
+            </button>
+            <button class="btn btn-secondary" onclick="loadAdmin('/api/admin/secure')">
+              Accéder (sécurisé)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="denied" id="deniedBox">
+        <div class="lock">🔒</div>
+        <h2>Accès refusé</h2>
+        <p>Vous n'avez pas les permissions nécessaires pour accéder à cette ressource.</p>
+        <div class="code">403 · FORBIDDEN</div>
+      </div>
+
+      <div class="admin-zone" id="adminZone">
+        <div class="admin-banner">
+          <div>
+            <h2>Coffre-fort déverrouillé</h2>
+            <p>Vue complète des données stratégiques</p>
+          </div>
+          <div class="admin-badge">ACCÈS ACCORDÉ</div>
+        </div>
+
+        <div class="flag-box">
+          <span class="label">FLAG</span>
+          <span id="flagValue">SPECTRA{...}</span>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Métriques globales</h2>
+              <p>Vue consolidée temps réel</p>
+            </div>
+          </div>
+          <div id="statsBox"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Clients Enterprise</h2>
+              <p>Comptes à forte valeur</p>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Client</th><th>Plan</th><th>MRR</th><th>Statut</th></tr>
+            </thead>
+            <tbody id="customersBody"></tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Activité récente</h2>
+              <p>Événements des dernières 24 h</p>
+            </div>
+          </div>
+          <ul class="activity" id="activityList"></ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  async function loadUser() {
+    const r = await fetch('/api/me');
+    const d = await r.json();
+    if (!d.ok) { window.location.href = '/'; return; }
+
+    document.getElementById('sideName').textContent = d.user.username;
+    document.getElementById('sideAvatar').textContent = d.user.username[0].toUpperCase();
+    document.getElementById('sideRole').textContent = d.user.role || 'user';
+    document.getElementById('pageTitle').textContent = 'Bonjour, ' + d.user.username;
+  }
+
+  async function loadAdmin(url) {
+    document.getElementById('deniedBox').classList.remove('show');
+    document.getElementById('adminZone').classList.remove('show');
+
+    const r = await fetch(url);
+    const d = await r.json();
+
+    if (!d.ok) {
+      document.getElementById('deniedBox').classList.add('show');
+      return;
+    }
+
+    renderAdmin(d.data);
+    document.getElementById('adminZone').classList.add('show');
+  }
+
+  function renderAdmin(data) {
+    document.getElementById('flagValue').textContent = data.flag || 'SPECTRA{no_flag}';
+
+    const stats = document.getElementById('statsBox');
+    stats.innerHTML = '';
+    const overview = data.overview || {};
+    const grid = document.createElement('div');
+    grid.className = 'stats';
+    for (const [k, v] of Object.entries(overview)) {
+      const label = k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      grid.innerHTML += `<div class="stat"><div class="stat-label">${label}</div><div class="stat-value">${v}</div></div>`;
+    }
+    stats.appendChild(grid);
+
+    const tbody = document.getElementById('customersBody');
+    tbody.innerHTML = '';
+    (data.customers || []).forEach(c => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${c.id}</td>
+          <td><strong>${c.name}</strong></td>
+          <td><span class="pill ${c.plan.toLowerCase()}">${c.plan}</span></td>
+          <td>${c.mrr}</td>
+          <td><span class="pill actif">${c.status}</span></td>
+        </tr>`;
+    });
+
+    const activity = document.getElementById('activityList');
+    activity.innerHTML = '';
+    (data.activity || []).forEach(a => {
+      activity.innerHTML += `<li>${a}</li>`;
+    });
+  }
+
+  function logout() {
+    document.cookie = 'token=; path=/; max-age=0';
+    window.location.href = '/';
+  }
+
+  loadUser();
+</script>
+
+</body>
+</html>
