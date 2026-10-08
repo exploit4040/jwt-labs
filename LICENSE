@@ -1,0 +1,54 @@
+MIT License
+
+Copyright (c) 2026 SPECTRA MZ (exploit4040)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+ETHICAL USE ADDENDUM
+
+The Software contains proof-of-concept code demonstrating security
+vulnerabilities in JSON Web Token (JWT) implementations. It is provided
+strictly for educational, research, and authorized security testing purposes.
+
+By using this Software, you agree that:
+
+1. You will use it only on systems you own, or on systems for which you have
+   obtained explicit written authorization from the owner prior to testing.
+
+2. You will not use it to gain unauthorized access to any system, network, or
+   data, or to cause damage, disruption, or harm to any party.
+
+3. You will comply with all applicable local, national, and international laws
+   regarding computer security, data protection, and privacy.
+
+4. You understand that unauthorized use of these techniques may constitute a
+   criminal offense, including but not limited to violations of:
+   - Computer Fraud and Abuse Act (CFAA) - United States
+   - Computer Misuse Act - United Kingdom
+   - Articles 323-1 to 323-8 du Code pénal - France
+   - Loi n° 20/017 sur les télécommunications - République Démocratique du Congo
+
+5. The author(s) disclaim any and all liability for misuse, damage, or legal
+   consequences arising from the use of this Software. The user assumes full
+   responsibility for their actions.
+
+If you do not agree with these terms, you must not use, copy, or distribute
+this Software.
