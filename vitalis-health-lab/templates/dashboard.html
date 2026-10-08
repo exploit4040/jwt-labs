@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vitalis Health — Tableau de bord</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f8fafc;
+    color: #0f172a;
+    min-height: 100vh;
+  }
+
+  /* ─── TOP NAV ─── */
+  header {
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0 32px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -.02em;
+  }
+  .brand-mark {
+    width: 32px; height: 32px;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #14b8a6, #0d9488);
+    display: grid;
+    place-items: center;
+    box-shadow: 0 6px 14px rgba(20, 184, 166, .3);
+  }
+  .brand-mark svg { width: 16px; height: 16px; }
+
+  .nav {
+    display: flex;
+    gap: 4px;
+    margin-left: 40px;
+    flex: 1;
+  }
+  .nav a {
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #64748b;
+    text-decoration: none;
+    transition: background .15s, color .15s;
+  }
+  .nav a:hover { background: #f1f5f9; color: #0f172a; }
+  .nav a.active { background: #f0fdfa; color: #0d9488; }
+
+  .user-area {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .user-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 12px 5px 5px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+  }
+  .avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #14b8a6, #0d9488);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-weight: 600;
+    font-size: 12.5px;
+  }
+  .user-chip .name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #334155;
+  }
+  .user-chip .role {
+    font-size: 11px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    font-weight: 500;
+  }
+  .logout {
+    background: none;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .logout:hover { background: #f8fafc; color: #0f172a; border-color: #cbd5e1; }
+
+  /* ─── MAIN ─── */
+  main {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 40px 24px;
+  }
+  .page-head { margin-bottom: 32px; }
+  .page-head h1 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -.025em;
+    color: #0f172a;
+    margin-bottom: 6px;
+  }
+  .page-head p {
+    font-size: 14.5px;
+    color: #64748b;
+  }
+
+  /* ─── CARDS ─── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 20px 22px;
+    transition: box-shadow .15s, border-color .15s;
+  }
+  .stat:hover {
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .05);
+    border-color: #cbd5e1;
+  }
+  .stat .label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: #64748b;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  .stat .label::before {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 3px;
+    background: #14b8a6;
+  }
+  .stat:nth-child(2) .label::before { background: #0ea5e9; }
+  .stat:nth-child(3) .label::before { background: #f59e0b; }
+  .stat:nth-child(4) .label::before { background: #8b5cf6; }
+  .stat .value {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    color: #0f172a;
+  }
+
+  /* ─── PANEL ─── */
+  .panel {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 24px 26px;
+    margin-bottom: 20px;
+  }
+  .panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .panel-head h2 {
+    font-size: 16.5px;
+    font-weight: 600;
+    letter-spacing: -.015em;
+    margin-bottom: 4px;
+  }
+  .panel-head p {
+    font-size: 13.5px;
+    color: #64748b;
+  }
+
+  .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn {
+    padding: 10px 18px;
+    border-radius: 9px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform .1s, box-shadow .15s, background .15s;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #14b8a6, #0d9488);
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(20, 184, 166, .25);
+  }
+  .btn-primary:hover { box-shadow: 0 8px 22px rgba(20, 184, 166, .4); }
+  .btn-secondary {
+    background: #fff;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+  }
+  .btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; }
+  .btn:active { transform: translateY(1px); }
+
+  /* ─── DENIED ─── */
+  .denied {
+    display: none;
+    text-align: center;
+    padding: 60px 24px;
+    background: #fff;
+    border: 1px solid #fee2e2;
+    border-radius: 14px;
+    margin-bottom: 20px;
+  }
+  .denied.show { display: block; }
+  .denied .icon {
+    width: 72px; height: 72px;
+    margin: 0 auto 22px;
+    border-radius: 50%;
+    background: #fef2f2;
+    display: grid;
+    place-items: center;
+    font-size: 28px;
+  }
+  .denied h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #b91c1c;
+    letter-spacing: -.02em;
+    margin-bottom: 8px;
+  }
+  .denied p {
+    color: #64748b;
+    font-size: 14px;
+  }
+  .denied .code {
+    margin-top: 18px;
+    display: inline-block;
+    padding: 5px 14px;
+    background: #f8fafc;
+    border-radius: 6px;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 12px;
+    color: #94a3b8;
+    letter-spacing: .06em;
+  }
+
+  /* ─── ADMIN ─── */
+  .admin-zone { display: none; }
+  .admin-zone.show { display: block; }
+
+  .flag-box {
+    background: linear-gradient(135deg, #0f766e, #0d9488);
+    color: #fff;
+    padding: 22px 26px;
+    border-radius: 14px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    box-shadow: 0 12px 32px rgba(13, 148, 136, .25);
+  }
+  .flag-box .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    color: rgba(255, 255, 255, .7);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .flag-box .value {
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    word-break: break-all;
+  }
+  .flag-box .badge {
+    background: rgba(255, 255, 255, .2);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    backdrop-filter: blur(6px);
+    white-space: nowrap;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  th {
+    text-align: left;
+    padding: 11px 14px;
+    background: #f8fafc;
+    color: #64748b;
+    font-weight: 600;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+  }
+  tr:last-child td { border-bottom: none; }
+  td strong { color: #0f172a; font-weight: 600; }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+  .status.stable   { background: #d1fae5; color: #047857; }
+  .status.critique { background: #fee2e2; color: #b91c1c; }
+  .status.sortie   { background: #e0e7ff; color: #4338ca; }
+  .status::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .stat-list { display: grid; gap: 10px; }
+  .stat-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    font-size: 13.5px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .stat-line:last-child { border-bottom: none; }
+  .stat-line span:first-child { color: #64748b; }
+  .stat-line span:last-child { color: #0f172a; font-weight: 600; }
+
+  .secret-line {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    background: #fef9c3;
+    border-left: 3px solid #f59e0b;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  .secret-line:last-child { margin-bottom: 0; }
+  .secret-line strong { color: #78350f; font-weight: 600; min-width: 180px; }
+  .secret-line span { color: #92400e; font-family: 'SF Mono', Consolas, monospace; font-size: 12.5px; word-break: break-all; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round">
+        <path d="M12 2v20M2 12h20"/>
+      </svg>
+    </div>
+    Vitalis Health
+  </div>
+
+  <nav class="nav">
+    <a class="active">Vue d'ensemble</a>
+    <a>Patients</a>
+    <a>Planning</a>
+    <a>Rapports</a>
+  </nav>
+
+  <div class="user-area">
+    <div class="user-chip">
+      <div class="avatar" id="avatar">--</div>
+      <div>
+        <div class="name" id="username">--</div>
+        <div class="role" id="role">--</div>
+      </div>
+    </div>
+    <button class="logout" onclick="logout()">Déconnexion</button>
+  </div>
+</header>
+
+<main>
+  <div class="page-head">
+    <h1 id="pageTitle">Bonjour</h1>
+    <p>Voici l'activité de votre établissement.</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="label">Patients aujourd'hui</div>
+      <div class="value">47</div>
+    </div>
+    <div class="stat">
+      <div class="label">Consultations</div>
+      <div class="value">32</div>
+    </div>
+    <div class="stat">
+      <div class="label">Urgences</div>
+      <div class="value">4</div>
+    </div>
+    <div class="stat">
+      <div class="label">Lits disponibles</div>
+      <div class="value">38</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Dossiers confidentiels</h2>
+        <p>Accès réservé au personnel administratif</p>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="loadAdmin('/api/admin/vulnerable')">
+          Accéder (vulnérable)
+        </button>
+        <button class="btn btn-secondary" onclick="loadAdmin('/api/admin/secure')">
+          Accéder (sécurisé)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="denied" id="deniedBox">
+    <div class="icon">🔒</div>
+    <h2>Accès refusé</h2>
+    <p>Vous n'avez pas les permissions nécessaires pour accéder à ce dossier.</p>
+    <div class="code">403 · FORBIDDEN</div>
+  </div>
+
+  <div class="admin-zone" id="adminZone">
+    <div class="flag-box">
+      <div>
+        <div class="label">FLAG</div>
+        <div class="value" id="flagValue">SPECTRA{...}</div>
+      </div>
+      <div class="badge">ACCÈS ACCORDÉ</div>
+    </div>
+
+    <div class="panel">
+      <h2 style="font-size:16.5px;font-weight:600;margin-bottom:16px;">Statistiques établissement</h2>
+      <div class="stat-list" id="statsBox"></div>
+    </div>
+
+    <div class="panel">
+      <h2 style="font-size:16.5px;font-weight:600;margin-bottom:16px;">Patients hospitalisés</h2>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Nom</th><th>Âge</th><th>Service</th><th>Statut</th></tr>
+          </thead>
+          <tbody id="patientsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2 style="font-size:16.5px;font-weight:600;margin-bottom:16px;">Informations confidentielles</h2>
+      <div id="confidentielBox"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+  async function loadUser() {
+    const r = await fetch('/api/me');
+    const d = await r.json();
+    if (!d.ok) { window.location.href = '/'; return; }
+
+    document.getElementById('username').textContent = d.user.username;
+    document.getElementById('avatar').textContent = d.user.username[0].toUpperCase();
+    document.getElementById('role').textContent = d.user.role || 'user';
+    document.getElementById('pageTitle').textContent = 'Bonjour, ' + d.user.username;
+  }
+
+  async function loadAdmin(url) {
+    document.getElementById('deniedBox').classList.remove('show');
+    document.getElementById('adminZone').classList.remove('show');
+
+    const r = await fetch(url);
+    const d = await r.json();
+
+    if (!d.ok) {
+      document.getElementById('deniedBox').classList.add('show');
+      return;
+    }
+
+    renderAdmin(d.data);
+    document.getElementById('adminZone').classList.add('show');
+  }
+
+  function renderAdmin(data) {
+    document.getElementById('flagValue').textContent = data.flag || 'SPECTRA{no_flag}';
+
+    const stats = document.getElementById('statsBox');
+    stats.innerHTML = '';
+    for (const [k, v] of Object.entries(data.stats || {})) {
+      const label = k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      stats.innerHTML += `<div class="stat-line"><span>${label}</span><span>${v}</span></div>`;
+    }
+
+    const tbody = document.getElementById('patientsBody');
+    tbody.innerHTML = '';
+    (data.patients || []).forEach(p => {
+      const cls = p.statut === 'critique' ? 'critique' : (p.statut === 'sortie' ? 'sortie' : 'stable');
+      tbody.innerHTML += `
+        <tr>
+          <td>${p.id}</td>
+          <td><strong>${p.nom}</strong></td>
+          <td>${p.age}</td>
+          <td>${p.service}</td>
+          <td><span class="status ${cls}">${p.statut}</span></td>
+        </tr>`;
+    });
+
+    const conf = document.getElementById('confidentielBox');
+    conf.innerHTML = '';
+    for (const [k, v] of Object.entries(data.confidentiel || {})) {
+      const label = k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      conf.innerHTML += `<div class="secret-line"><strong>${label}</strong><span>${v}</span></div>`;
+    }
+  }
+
+  function logout() {
+    document.cookie = 'token=; path=/; max-age=0';
+    window.location.href = '/';
+  }
+
+  loadUser();
+</script>
+
+</body>
+</html>

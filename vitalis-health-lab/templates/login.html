@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vitalis Health — Connexion</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f0fdfa;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(13, 148, 136, .08) 0%, transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(20, 184, 166, .06) 0%, transparent 40%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    color: #0f172a;
+  }
+  .card {
+    background: #fff;
+    width: 100%;
+    max-width: 420px;
+    padding: 44px 40px;
+    border-radius: 20px;
+    box-shadow:
+      0 1px 3px rgba(15, 23, 42, .04),
+      0 20px 60px rgba(15, 23, 42, .08);
+    border: 1px solid #f1f5f9;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -.02em;
+    margin-bottom: 32px;
+  }
+  .brand-mark {
+    width: 38px; height: 38px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #14b8a6, #0d9488);
+    display: grid;
+    place-items: center;
+    box-shadow: 0 8px 20px rgba(20, 184, 166, .35);
+  }
+  .brand-mark svg { width: 20px; height: 20px; }
+  .brand small {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: #64748b;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+
+  h1 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -.025em;
+    margin-bottom: 6px;
+  }
+  .sub {
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 32px;
+  }
+
+  .field { margin-bottom: 18px; }
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #334155;
+    margin-bottom: 7px;
+  }
+  input {
+    width: 100%;
+    padding: 12px 15px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #0f172a;
+    transition: border-color .15s, box-shadow .15s, background .15s;
+    outline: none;
+  }
+  input::placeholder { color: #94a3b8; }
+  input:focus {
+    border-color: #14b8a6;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, .12);
+  }
+
+  .row-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    font-size: 13px;
+  }
+  .check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #475569;
+    cursor: pointer;
+  }
+  .check input { width: auto; padding: 0; background: none; border: none; }
+  .row-between a {
+    color: #0d9488;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .row-between a:hover { text-decoration: underline; }
+
+  .btn {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(135deg, #14b8a6, #0d9488);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 14.5px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform .1s, box-shadow .15s;
+    box-shadow: 0 8px 20px rgba(20, 184, 166, .3);
+    letter-spacing: -.005em;
+  }
+  .btn:hover { box-shadow: 0 10px 26px rgba(20, 184, 166, .42); }
+  .btn:active { transform: translateY(1px); }
+  .btn:disabled { opacity: .6; cursor: not-allowed; box-shadow: none; }
+
+  .error {
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    padding: 11px 14px;
+    border-radius: 9px;
+    font-size: 13px;
+    margin-bottom: 18px;
+    display: none;
+  }
+  .error.show { display: block; }
+
+  .divider {
+    text-align: center;
+    margin: 26px 0 20px;
+    position: relative;
+    font-size: 11.5px;
+    color: #94a3b8;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+  .divider::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 0; right: 0;
+    height: 1px;
+    background: #e2e8f0;
+  }
+  .divider span {
+    position: relative;
+    background: #fff;
+    padding: 0 14px;
+  }
+
+  .footer {
+    text-align: center;
+    font-size: 12.5px;
+    color: #94a3b8;
+    margin-top: 28px;
+  }
+  .footer code {
+    background: #f1f5f9;
+    color: #0d9488;
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2v20M2 12h20"/>
+      </svg>
+    </div>
+    <div>
+      Vitalis Health
+      <small>Espace professionnel</small>
+    </div>
+  </div>
+
+  <h1>Connexion</h1>
+  <p class="sub">Accédez à votre espace soignant</p>
+
+  <form id="loginForm">
+    <div class="error" id="error"></div>
+
+    <div class="field">
+      <label for="username">Identifiant professionnel</label>
+      <input type="text" id="username" placeholder="docteur" required autocomplete="username">
+    </div>
+
+    <div class="field">
+      <label for="password">Mot de passe</label>
+      <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
+    </div>
+
+    <div class="row-between">
+      <label class="check">
+        <input type="checkbox"> Se souvenir de moi
+      </label>
+      <a href="#">Mot de passe oublié ?</a>
+    </div>
+
+    <button type="submit" class="btn" id="submitBtn">Se connecter</button>
+  </form>
+
+  <div class="footer">
+    Comptes test : <code>docteur / docteur123</code> · <code>admin / admin123</code>
+  </div>
+
+</div>
+
+<script>
+  const form = document.getElementById('loginForm');
+  const errorBox = document.getElementById('error');
+  const submitBtn = document.getElementById('submitBtn');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorBox.classList.remove('show');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Connexion...';
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    try {
+      const r = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const d = await r.json();
+      if (d.ok) {
+        window.location.href = d.redirect;
+      } else {
+        errorBox.textContent = d.error || 'Erreur';
+        errorBox.classList.add('show');
+      }
+    } catch (err) {
+      errorBox.textContent = 'Erreur réseau';
+      errorBox.classList.add('show');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Se connecter';
+    }
+  });
+</script>
+
+</body>
+</html>
